@@ -11,3 +11,7 @@ Then run:
 ```
 $ ./mock -port 4444
 ```
+To create Docker container type:
+```
+$ docker build -t selenium-mock:latest .
+```
