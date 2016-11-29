@@ -24,23 +24,25 @@ func handler() http.Handler {
 	var lock sync.RWMutex
 	sessions := make(map[string]struct{})
 	mux := http.NewServeMux()
-	mux.HandleFunc("/session", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/wd/hub/session", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
-		u := uuid.New()
+		sessionId := uuid.New()
 		lock.Lock()
-		sessions[u] = struct{}{}
+		sessions[sessionId] = struct{}{}
 		lock.Unlock()
 		json.NewEncoder(w).Encode(struct {
 			S string `json:"sessionId"`
-		}{u})
+		}{sessionId})
 	})
-	mux.HandleFunc("/session/", func(w http.ResponseWriter, r *http.Request) {
-		u := strings.Split(r.URL.Path, "/")[2]
+	mux.HandleFunc("/wd/hub/session/", func(w http.ResponseWriter, r *http.Request) {
+		fragments := strings.Split(r.URL.Path, "/")
+		sessionId := fragments[4]
+		fmt.Printf("%v\n", sessionId)
 		lock.RLock()
-		_, ok := sessions[u]
+		_, ok := sessions[sessionId]
 		lock.RUnlock()
 		if !ok {
 			http.Error(w, "Session not found", http.StatusNotFound)
@@ -50,12 +52,12 @@ func handler() http.Handler {
 			St string `json:"state"`
 			Id string `json:"sessionId"`
 			Value string `json:"value"`
-		}{"success", u, screenshot})
-		if r.Method != http.MethodDelete {
+		}{"success", sessionId, screenshot})
+		if r.Method != http.MethodDelete || len(fragments) != 4 {
 			return
 		}
 		lock.Lock()
-		delete(sessions, u)
+		delete(sessions, sessionId)
 		lock.Unlock()
 	})
 	return mux
