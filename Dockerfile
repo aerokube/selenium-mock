@@ -6,5 +6,5 @@ ENV PORT 4444
 COPY selenium-mock /usr/bin
 COPY entrypoint.sh /
 
-EXPOSE 4444
+EXPOSE $PORT
 ENTRYPOINT /entrypoint.sh

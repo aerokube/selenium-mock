@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"sync"
 	"encoding/json"
 	"strings"
 	"flag"
@@ -21,8 +20,6 @@ const (
 )
 
 func handler() http.Handler {
-	var lock sync.RWMutex
-	sessions := make(map[string]struct{})
 	mux := http.NewServeMux()
 	mux.HandleFunc("/wd/hub/session", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -30,9 +27,6 @@ func handler() http.Handler {
 			return
 		}
 		sessionId := uuid.New()
-		lock.Lock()
-		sessions[sessionId] = struct{}{}
-		lock.Unlock()
 		json.NewEncoder(w).Encode(struct {
 			S string `json:"sessionId"`
 		}{sessionId})
@@ -40,14 +34,6 @@ func handler() http.Handler {
 	mux.HandleFunc("/wd/hub/session/", func(w http.ResponseWriter, r *http.Request) {
 		fragments := strings.Split(r.URL.Path, "/")
 		sessionId := fragments[4]
-		fmt.Printf("%v\n", sessionId)
-		lock.RLock()
-		_, ok := sessions[sessionId]
-		lock.RUnlock()
-		if !ok {
-			http.Error(w, "Session not found", http.StatusNotFound)
-			return
-		}
 		json.NewEncoder(w).Encode(struct {
 			St string `json:"state"`
 			Id string `json:"sessionId"`
@@ -56,9 +42,6 @@ func handler() http.Handler {
 		if r.Method != http.MethodDelete || len(fragments) != 4 {
 			return
 		}
-		lock.Lock()
-		delete(sessions, sessionId)
-		lock.Unlock()
 	})
 	return mux
 }
