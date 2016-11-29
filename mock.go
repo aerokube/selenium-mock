@@ -9,7 +9,7 @@ import (
 	"log"
 	"fmt"
 
-	"github.com/satori/go.uuid"
+	"github.com/pborman/uuid"
 )
 
 var (
@@ -25,7 +25,7 @@ func handler() http.Handler {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
-		u := uuid.NewV4().String()
+		u := uuid.New()
 		lock.Lock()
 		sessions[u] = struct{}{}
 		lock.Unlock()
