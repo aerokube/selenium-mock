@@ -1,10 +1,7 @@
 FROM ubuntu:16.04
-MAINTAINER Ivan Krutov <vania-pooh@vania-pooh.com>
-
-ENV PORT 4444
+MAINTAINER Ivan Krutov <vania-pooh@aerokube.com>
 
 COPY selenium-mock /usr/bin
-COPY entrypoint.sh /
 
 EXPOSE $PORT
-ENTRYPOINT /entrypoint.sh
+CMD ["/usr/bin/selenium-mock"]
