@@ -5,19 +5,22 @@
 This repository contains a small binary emulating real Selenium Hub responses. The main application - load testing of Selenium proxies like [Gridrouter](http://github.com/aandryashin/ggr).
 
 ## Running
+Run the following command to obtain running selenium-mock on port 4444:
 ```
-# docker run --rm -it --name selenium-mock aerokube/selenium-mock:1.0.0
+# docker run --rm -it --name selenium-mock -p 4444:4444 aerokube/selenium-mock:1.0.0
 ```
 
 ## Building
 To build install [Govendor](https://github.com/kardianos/govendor) and type:
 ```
+$ go get github.com/aerokube/selenium-mock
+$ cd $GOPATH/src/github.com/aerokube/selenium-mock
 $ govendor sync
 $ go build
 ```
 Then run:
 ```
-$ ./mock -port 4444
+$ ./selenium-mock -port 4444
 ```
 To create Docker container type:
 ```
